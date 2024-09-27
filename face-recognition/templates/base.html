@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    {% block head %}
+        
+    {% endblock head %}
+    <title>{% block title %}
+        
+    {% endblock title %} - Yuki</title>
+    
+  </head> 
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand"  href="#">Yuki</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item {% block home %}
+                
+            {% endblock home %}">
+              <a class="nav-link" href="/home">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item {% block markattendance %}
+                
+            {% endblock markattendance %}">
+                <a class="nav-link" href="/markattendance">Mark Attendance</a>
+              </li>
+              <li class="nav-item {% block upload_student_data %}
+                
+              {% endblock upload_student_data %}">
+                <a class="nav-link" href="/uploadStudentData">Upload Student Data</a>
+              </li>  
+            <li class="nav-item {% block addstudent %}
+                
+            {% endblock addstudent %}">
+              <a class="nav-link" href="/addstudent">Add Student</a>
+            </li>
+            <li class="nav-item {% block uploadImages %}
+                
+            {% endblock uploadImages %}">
+              <a class="nav-link" href="/uploadImages">Upload Images</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Options
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="/fetchAttendance">Previos Records</a>
+                <!-- <a class="dropdown-item" href="/attendanceReview">Attendance Review</a> -->
+              </div>
+            </li>   
+          </ul>
+          <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <form method="POST" action="{{url_for('logout')}}">
+            <a class="btn btn-outline-success my-2 my-sm-0" href="{{ url_for('logout') }}">Logout</a>
+          </form>
+          </form>
+        </div>
+      </nav>
+    {% block body %}
+        
+    {% endblock body %}
+  </body>
+  </html>

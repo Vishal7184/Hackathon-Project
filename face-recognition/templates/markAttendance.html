@@ -1,0 +1,123 @@
+  {% extends 'base.html' %}
+  {% block title %}
+  Mark Attendance
+  {% endblock title %}
+  {% block markattendance %}
+  active
+  {% endblock markattendance %}
+  {% block body %}
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<style>
+
+</style>
+  <form method="POST">
+    <div class="container my-3">
+      <h4>Mark Attendance</h4>
+      <div class="form-group">
+        <select class="custom-select" id="selectBatch" onchange="dayChange()">
+          <option selected>Select Batch</option>
+          <option value="Lecture">Lecture</option>
+          <option value="1">IF1</option>
+          <option value="2">IF2</option>
+          <option value="3">IF3</option>
+        </select>
+        <div class="form-group">
+          <p>Select the date for which to mark attendance: </p><input type="date" id="selectDay" name="selectedDay" onchange="dayChange()" />
+          <div id="errorMessage" class="alert alert-danger" style="display: none;"></div>
+        <div class="input-group mb-3">
+          <select class="custom-select" id="selectLectures">
+            <option>Select</option>
+          </select>
+        </div>
+      </div>
+      <br />
+      <div class="btn-group-vertical" role="group" aria-label="Vertical radio toggle button group">
+        <input type="radio" class="btn-check" name="vbtn-radio" id="vbtn-radio1" style="display: none;" autocomplete="off"
+          onchange="check(this.id)">
+        <label class="btn btn-outline-danger" for="vbtn-radio1">Start Camera</label>
+        <input type="radio" class="btn-check" name="vbtn-radio" id="vbtn-radio2" style="display: none;" autocomplete="off"
+          checked onchange="check(this.id)">
+        <label class="btn btn-outline-danger" for="vbtn-radio2">Stop Camera</label>
+        <input type="button" class="btn btn-info" onclick="switchCamera()" value="Switch Camera">
+      </div>
+      <input type="button" class="btn btn-primary" style="margin: 20px;" value="Show Attendance" onclick="showAttendance()">
+      <table class="table" id="allTable">
+        <thead>
+          <tr>
+            <th scope="col">Roll No.</th>
+            <th scope="col">Student Name</th>
+            <th scope="col">Enrollment No.</th>
+            <th scope="col">P/A</th>
+          </tr>
+        </thead>
+        <tbody id="attendance_table_body">
+        </tbody>
+      </table>
+      <input type="button" id="exportBtn" onclick="exportToXLSX()" disabled value="Export to XLSX"/>
+  </form>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.4/xlsx.full.min.js"></script>
+  <script>
+
+    function exportToXLSX() {
+      var fname = document.getElementById('selectLectures').options[document.getElementById('selectLectures').selectedIndex].value;
+      var d = document.getElementById('selectDay');
+      var date = new Date(d.value);
+    // Get the table element by its ID
+    var table = document.getElementById('allTable');
+    
+    // Convert the table data to a worksheet
+    var ws = XLSX.utils.table_to_sheet(table);
+
+    // Create a new workbook
+    var wb = XLSX.utils.book_new();
+
+    // Add the worksheet to the workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Attendance");
+
+    // Convert the workbook to a binary XLSX file
+    var wbout = XLSX.write(wb, {bookType:'xlsx', type:'binary'});
+
+    // Convert the binary XLSX data to a Blob
+    var blob = new Blob([s2ab(wbout)], {type:"application/octet-stream"});
+
+    // Create a download link for the Blob
+    var url = URL.createObjectURL(blob);
+
+    // Trigger a download of the XLSX file
+    var link = document.createElement("a");
+    link.href = url;
+    var fullDate = date.getDate().toString()+"."+(date.getMonth()+1).toString()+"."+date.getYear().toString();
+    link.download = fullDate+"-"+fname+'.xlsx';
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up
+    setTimeout(function() {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }, 0);
+}
+
+// Utility function to convert a string to an ArrayBuffer
+function s2ab(s) {
+    var buf = new ArrayBuffer(s.length);
+    var view = new Uint8Array(buf);
+    for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+    return buf;
+}
+  </script>
+  <!-- jQuery first -->
+  
+
+  <!-- jQuery UI second -->
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+  <!-- Other scripts -->
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+  {% endblock body %}

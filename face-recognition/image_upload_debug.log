@@ -1,0 +1,12 @@
+DEBUG:root:ImmutableMultiDict([('studentData', <FileStorage: '' ('application/octet-stream')>), ('images', <FileStorage: '' ('application/octet-stream')>)])
+INFO:werkzeug:127.0.0.1 - - [02/Mar/2024 09:03:45] "[32mPOST /add_student HTTP/1.1[0m" 302 -
+DEBUG:root:ImmutableMultiDict([('studentData', <FileStorage: '' ('application/octet-stream')>), ('images', <FileStorage: '' ('application/octet-stream')>)])
+INFO:werkzeug:127.0.0.1 - - [02/Mar/2024 09:03:45] "[32mPOST /add_student HTTP/1.1[0m" 302 -
+INFO:werkzeug:127.0.0.1 - - [02/Mar/2024 09:03:45] "GET /add_student HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [02/Mar/2024 09:03:45] "GET /add_student HTTP/1.1" 200 -
+DEBUG:root:ImmutableMultiDict([('studentData', <FileStorage: '' ('application/octet-stream')>), ('images', <FileStorage: '' ('application/octet-stream')>)])
+INFO:werkzeug:127.0.0.1 - - [02/Mar/2024 09:05:11] "[32mPOST /add_student HTTP/1.1[0m" 302 -
+DEBUG:root:ImmutableMultiDict([('studentData', <FileStorage: '' ('application/octet-stream')>), ('images', <FileStorage: '' ('application/octet-stream')>)])
+INFO:werkzeug:127.0.0.1 - - [02/Mar/2024 09:05:11] "[32mPOST /add_student HTTP/1.1[0m" 302 -
+INFO:werkzeug:127.0.0.1 - - [02/Mar/2024 09:05:11] "GET /add_student HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [02/Mar/2024 09:05:11] "GET /add_student HTTP/1.1" 200 -

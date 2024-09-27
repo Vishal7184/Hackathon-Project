@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% block head %}
+<link rel="stylesheet" href="https://cdn.metroui.org.ua/current/metro.css">
+{% endblock head %}
+{% block title %}
+Upload Images
+{% endblock title %}
+{% block uploadImages %}
+{% endblock uploadImages %}
+{% block body %}
+<form method="POST" action="/showAttendance">
+    <div class="container my-3">
+      <h4>Upload Images</h4>
+      <div class="form-group">
+        <select class="custom-select" id="selectBatch" onchange="dayChange()">
+          <option selected>Select Batch</option>
+          <option value="Lecture">Lecture</option>
+          <option value="1">IF1</option>
+          <option value="2">IF2</option>
+          <option value="3">IF3</option>
+        </select>
+        <div class="form-group">
+          <p>Select the date for which to mark attendance: </p><input type="date" id="selectDay" name="selectedDay" onchange="dayChange()" />
+          <div id="errorMessage" class="alert alert-danger" style="display: none;"></div><hr>
+        <div class="input-group mb-3">
+          <select class="custom-select" id="selectLectures">
+            <option>Select</option>
+          </select>
+        </div>
+      </div>
+      <div id="processStatus" class="alert alert-dark" role="alert" style="display: none;">
+      </div>
+      <div class="container my-3">
+        <h4>Upload Image</h4>
+        <div class="form-group">
+          <input type="file" data-role="file" data-mode="drop" id="fileInput" accept="image/*" multiple>
+            <input type="button" onclick="uploadImages()" value="Upload Images"/>
+      <input type="button" id="showAttendanceBtn" disabled class="btn btn-primary" style="margin: 20px;" value="Show Attendance" onclick="showAttendance()">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Roll No.</th>
+            <th scope="col">Student Name</th>
+            <th scope="col">Enrollment No.</th>
+            <th scope="col">P/A</th>
+          </tr>
+        </thead>
+        <tbody id="attendance_table_body">
+        </tbody>
+      </table>
+  </form>
+<script>
+</script>
+<script src="https://cdn.metroui.org.ua/current/metro.js"></script>
+<!-- jQuery first -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<!-- jQuery UI second -->
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<!-- Other scripts -->
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script>
+  const processStatus = document.getElementById('processStatus');
+  const showAttendanceBtn = document.getElementById('showAttendanceBtn');
+
+
+
+    function uploadImages() {
+    const fileInput = document.getElementById('fileInput');
+    
+    // Check if files are selected
+    if (fileInput.files.length > 0) {
+        const formData = new FormData();
+        processStatus.style.display = 'block';
+        processStatus.className = 'alert alert-dark';
+        showAttendanceBtn.disabled=true;
+        processStatus.innerHTML = 'Please wait while processing...';
+        // Append each selected file to the FormData object
+        for (const file of fileInput.files) {
+            formData.append('images', file);
+        }
+        let selectSlot = document.getElementById('selectLectures');
+        let slot = selectSlot.options[selectSlot.selectedIndex].text;
+        let selectBatch = document.getElementById('selectBatch');
+        let batch = selectBatch.options[selectBatch.selectedIndex].value;
+        let selectDay = document.getElementById('selectDay');
+        var date = new Date(selectDay.value)
+        formData.append('selectedDay', date);
+        formData.append('selectedBatch', batch);
+        formData.append('selectedSlot', slot);
+        // Send the FormData to the server (you need to implement the server-side code)
+        fetch('/processImages', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => {
+          return response.text(); // Convert response body to text
+        })
+        .then(data => {
+          console.log('Data is: '+data);
+          
+          if(data == 'AlreadyMarked')
+          {
+            processStatus.className = 'alert alert-danger';
+            processStatus.innerHTML = 'Attendance for the selected Lecture is already marked!';
+          }
+          if(data == 'Success')
+          {
+            console.log('Images uploaded successfully:', data);
+            processStatus.className = 'alert alert-success';
+            processStatus.innerHTML = 'Processing completed!';
+            showAttendanceBtn.disabled = false;
+          }
+            // You can now use the image URLs in your Python code
+            // Implement the logic to process the images in Python
+        })
+        .catch(error => console.error('Error uploading images:', error));
+    } else {
+      processStatus.style.display = 'block';
+      processStatus.className = 'alert alert-danger';
+      processStatus.innerHTML = 'No files selected';
+        console.log('No files selected.');
+    }
+}
+const socket = io.connect();
+var days = ["Invalid","Monday","Tuesday","Wednesday","Thursday","Friday","Invalid"]
+function dayChange() {
+    let selectDay = document.getElementById('selectDay');
+    var date = new Date(selectDay.value)
+    var today = new Date();
+    today.setDate(today.getDate());
+    let day = days[date.getDay()];
+    let errorMessageElement = document.getElementById('errorMessage');
+    if(day=="Invalid" || date > today)
+    {
+      let selectElement = $('#selectLectures');
+      selectElement.empty();
+      errorMessageElement.innerText = "Invalid date selected.";
+      errorMessageElement.style.display = 'block';
+    }
+    else{
+      errorMessageElement.style.display = 'none';
+    let selectBatch = document.getElementById('selectBatch');
+    let batch = selectBatch.options[selectBatch.selectedIndex].value;
+    console.log("Call 1 success");
+
+    // Send the selected day and batch to the server using Socket.IO
+    socket.emit('load_lectures', {
+        selectedDay: day,
+        selectedBatch: batch
+    });
+  }
+}
+
+function showAttendance()
+{
+  const formData = new FormData();
+        let selectSlot = document.getElementById('selectLectures');
+        let slot = selectSlot.options[selectSlot.selectedIndex].text;
+        let selectBatch = document.getElementById('selectBatch');
+        let batch = selectBatch.options[selectBatch.selectedIndex].value;
+        let selectDay = document.getElementById('selectDay');
+        var date = new Date(selectDay.value)
+        formData.append('selectedDay', date);
+        formData.append('selectedBatch', batch);
+        formData.append('selectedSlot', slot);
+        // Send the FormData to the server (you need to implement the server-side code)
+        fetch('/showAttendance', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => {
+          return response.json(); // Convert response body to text
+        })
+        .then(data => {
+          var tableBody = document.getElementById('attendance_table_body');
+        tableBody.innerHTML = ''; // Clear existing data
+        if (data.attendance) { // Check if attendance data is present
+        data.attendance.forEach(function(record) {
+            var row = document.createElement('tr');
+            row.innerHTML = '<td>' + record.roll_no + '</td>' +
+                            '<td>' + record.name + '</td>' +
+                            '<td>' + record.enrollment_no + '</td>'+
+                            '<td>' + record.present + '</td>';
+                            // Add more columns as needed
+            tableBody.appendChild(row);
+        });
+    } else {
+        console.error('Attendance data is missing or empty');
+    }
+    })
+        .catch(error => console.error('Error uploading images:', error));
+    } 
+
+
+// Listen for the response from the server
+socket.on('lectures_loaded', function(slotsData) {
+    // Update the select element with the new options
+    updateSelectOptions(slotsData);
+    console.log("Call 2 success");
+});
+function updateSelectOptions(slotsData) {
+    let selectElement = $('#selectLectures');
+
+    // Clear existing options
+    selectElement.empty();
+    selectElement.append($('<option>', {
+            value: "Select",
+            text: "Select"
+        }));
+    // Add new options for each slot
+    slotsData.forEach(function (slot) {
+        // Assuming each slot is a string, you may adjust this based on your data structure
+        selectElement.append($('<option>', {
+            value: slot,
+            text: slot
+        }));
+    });
+    console.log("Call 2 success");
+}
+
+</script>
+{% endblock body %}

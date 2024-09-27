@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block head %}
+<link rel="stylesheet" href="https://cdn.metroui.org.ua/current/metro.css">
+{% endblock head %}
+{% block title %} Add New Student {% endblock title %}
+{% block addstudent %} active {% endblock addstudent %}
+
+{% block body %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+  {% for msg in messages %}
+  <div class="alert alert-dark alert-dismissible fade show" role="alert">
+    {{msg}}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  {% endfor %}
+{% endif %}
+{% endwith %}
+<form method="POST" action="/add_student" enctype="multipart/form-data" id = "studentForm">
+  <div class="container my-3">
+    <h4>Add Student Data</h4>
+
+    <form id="uploadForm" method="POST" action="/upload_student_data" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="studentData">Student Data: (student_data.xlsx)</label>
+        <div class="file-upload-wrapper">
+        <input type="file"  class="file-upload" data-role="file" data-mode="drop" id="studentData" name="studentData" accept=".xlsx">
+    </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Upload Student Data</button>
+    </form>
+    <script src="https://cdn.metroui.org.ua/current/metro.js"></script>
+    <script>
+      const studentInfoInput = document.getElementById('studentInfo');
+      const studentDataList = document.getElementById('student-list');
+    
+      studentInfoInput.addEventListener('input', function () {
+        fetch(`/autocomplete?q=${this.value}`)
+          .then(response => response.json())
+          .then(data => {
+            studentDataList.innerHTML = ''; // Clear previous options
+    
+            data.forEach(student => {
+              let option = document.createElement('option');
+              option.value = `${student.roll_no} - ${student.name} - ${student.enrollment_no}`;
+              studentDataList.appendChild(option);
+            });
+          })
+          .catch(error => console.error('Error fetching autocomplete data:', error));
+      });
+</script>
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+  integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+  integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js"
+  integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+{% endblock body %}
